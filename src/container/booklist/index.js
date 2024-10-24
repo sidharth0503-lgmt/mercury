@@ -74,10 +74,11 @@ const EmployeeList = () => {
 
   const handleEdit = (index) => {
     setEditIndex(index);
+    const emp = employees[index];
     setEditedEmployee({
-      Department: employees[index].Department,
-      Allowances: employees[index].Allowances,
-      Basicsalary: employees[index].Basicsalary,
+      Department: emp.Department,
+      Allowances: emp.Allowances.toString(), // Ensure it's a string for input binding
+      Basicsalary: emp.Basicsalary.toString(), // Ensure it's a string for input binding
     });
   };
 
@@ -122,7 +123,8 @@ const EmployeeList = () => {
           Basicsalary: Number(editedEmployee.Basicsalary),
         };
         setEmployees(updatedEmployees);
-        setEditIndex(-1);
+        setEditIndex(-1); // Reset edit index after saving
+        setEditedEmployee({ Department: "", Allowances: "", Basicsalary: "" }); // Reset editedEmployee state
       }
     } catch (error) {
       console.error("Update Error:", error);
@@ -173,7 +175,7 @@ const EmployeeList = () => {
     setEditedEmployee({ ...editedEmployee, [name]: value });
   };
 
-  const filteredEmployees = userRole === "USER" 
+  const filteredEmployees = userRole === "USER"
     ? employees.filter(emp => emp.employee?.userName === selectedUsername)
     : selectedUsername
     ? employees.filter(emp => emp.employee?.userName === selectedUsername)
@@ -189,7 +191,7 @@ const EmployeeList = () => {
       ) : (
         <div>
           {(userRole === "ADMIN" || userRole === "USER") && (
-            <div className="mb-4 ">
+            <div className="mb-4">
               <label className="mr-2">Filter by Username:</label>
               <select
                 value={selectedUsername}
@@ -249,123 +251,72 @@ const EmployeeList = () => {
           </div>
 
           {/* Mobile view */}
-          <div className="flex justify-center md:hidden">
-            <div className="flex flex-col items-center">
-              {filteredEmployees.map((emp, index) => {
-                const originalIndex = index; // Using index directly since we're in a filtered context
-
-                return (
-                  <div key={emp.id} className="border border-gray-300 p-2 mb-2 rounded-lg w-full max-w-sm">
-                    <table className="w-full">
-                      <tbody>
-                        <tr>
-                          <td className="font-bold">Username:</td>
-                          <td className="pl-2">
-                            {editIndex === originalIndex ? (
-                              <input
-                                type="text"
-                                name="username"
-                                value={emp.employee ? emp.employee.userName : ""}
-                                readOnly
-                                className="mobile-edit border rounded px-1"
-                              />
-                            ) : (
-                              <span className="text-lg">{emp.employee ? emp.employee.userName : "N/A"}</span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">Department:</td>
-                          <td className="pl-2">
-                            {editIndex === originalIndex ? (
-                              <input
-                                type="text"
-                                name="department"
-                                value={editedEmployee.Department}
-                                onChange={handleChange}
-                                className="mobile-edit border rounded px-1"
-                              />
-                            ) : (
-                              <span className="text-lg">{emp.Department}</span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">Allowances:</td>
-                          <td className="pl-2">
-                            {editIndex === originalIndex ? (
-                              <input
-                                type="text"
-                                name="allowances"
-                                value={editedEmployee.Allowances}
-                                onChange={handleChange}
-                                className="mobile-edit border rounded px-1"
-                              />
-                            ) : (
-                              <span className="text-lg">{emp.Allowances}</span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">Basic Salary:</td>
-                          <td className="pl-2">
-                            {editIndex === originalIndex ? (
-                              <input
-                                type="text"
-                                name="salary"
-                                value={editedEmployee.Basicsalary}
-                                onChange={handleChange}
-                                className="mobile-edit border rounded px-1"
-                              />
-                            ) : (
-                              <span className="text-lg">{emp.Basicsalary}</span>
-                            )}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">Created On:</td>
-                          <td className="pl-2">
-                            <span className="text-lg">{new Date(emp.createdOn).toLocaleDateString()}</span>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">Updated On:</td>
-                          <td className="pl-2">
-                            <span className="text-lg">{new Date(emp.updatedOn).toLocaleDateString()}</span>
-                          </td>
-                        </tr>
-                        {userRole === "ADMIN" && (
-                          <tr>
-                            <td colSpan="2">
-                              <div className="flex justify-around">
-                                {editIndex === originalIndex ? (
-                                  <FaSave
-                                    onClick={handleSave}
-                                    className="icons text-green-500 cursor-pointer"
-                                  />
-                                ) : (
-                                  <>
-                                    <RiEdit2Fill
-                                      onClick={() => handleEdit(originalIndex)}
-                                      className="icons text-blue-500 cursor-pointer"
-                                    />
-                                    <MdDelete
-                                      onClick={() => handleRemove(originalIndex)}
-                                      className="icons text-red-500 cursor-pointer"
-                                    />
-                                  </>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="md:hidden">
+            {filteredEmployees.map((emp, index) => (
+              <div key={emp.id} className="border-2 mb-4 p-4">
+                <p className="font-bold">Username: {emp.employee ? emp.employee.userName : "N/A"}</p>
+                <p>Department: {emp.Department}</p>
+                <p>Allowances: {emp.Allowances}</p>
+                <p>Basic Salary: {emp.Basicsalary}</p>
+                <p>Created On: {new Date(emp.createdOn).toLocaleDateString()}</p>
+                <p>Updated On: {new Date(emp.updatedOn).toLocaleDateString()}</p>
+                <div className="flex justify-end">
+                  <button onClick={() => handleEdit(index)} className="text-xl text-blue-500 hover:text-blue-700 mr-6">
+                    <RiEdit2Fill />
+                  </button>
+                  <button onClick={() => handleRemove(index)} className="text-xl text-red-500 hover:text-red-700">
+                    <MdDelete />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Edit Employee Modal */}
+          {editIndex !== -1 && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-50">
+              <div className="bg-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-xl font-bold mb-4">Edit Employee</h3>
+                <div className="mb-4">
+                  <label className="block mb-2">Department</label>
+                  <input
+                    type="text"
+                    name="Department"
+                    value={editedEmployee.Department}
+                    onChange={handleChange}
+                    className="border rounded w-full px-2"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-2">Allowances</label>
+                  <input
+                    type="number"
+                    name="Allowances"
+                    value={editedEmployee.Allowances}
+                    onChange={handleChange}
+                    className="border rounded w-full px-2"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-2">Basic Salary</label>
+                  <input
+                    type="number"
+                    name="Basicsalary"
+                    value={editedEmployee.Basicsalary}
+                    onChange={handleChange}
+                    className="border rounded w-full px-2"
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <button onClick={handleSave} className="flex items-center bg-blue-500 text-white rounded px-4 py-2 mr-2">
+                    <FaSave className="mr-2" />
+                    Save
+                  </button>
+                  <button onClick={() => setEditIndex(-1)} className="bg-gray-300 text-black rounded px-4 py-2">Cancel</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -373,4 +324,3 @@ const EmployeeList = () => {
 };
 
 export default EmployeeList;
-
